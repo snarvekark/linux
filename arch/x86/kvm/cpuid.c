@@ -24,6 +24,12 @@
 #include "trace.h"
 #include "pmu.h"
 
+u32 nr_exits=0;
+EXPORT_SYMBOL(nr_exits);
+u32 exit_counts[80] = {};
+EXPORT_SYMBOL(exit_counts);
+
+
 static u32 xstate_required_size(u64 xstate_bv, bool compacted)
 {
 	int feature_bit = 0;
@@ -1046,7 +1052,298 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 
 	eax = kvm_rax_read(vcpu);
 	ecx = kvm_rcx_read(vcpu);
+	if(eax==0x4fffffff)
+	{
+		eax=(u32)nr_exits;
+		printk((u32)nr_exits);
+	}
+	else if(eax==0x4ffffffd)
+	{
+		switch(ecx)
+		{
+			case 0:
+			{
+				eax=exit_counts[0];
+				break;
+			}
+			case 1:
+			{
+				eax=exit_counts[1];
+				break;
+			}
+			case 2:
+			{
+				eax=exit_counts[2];
+				break;
+			}
+			case 5:
+			{
+				eax=exit_counts[5];
+				break;
+			}
+			case 7:
+			{
+				eax=exit_counts[7];
+				break;
+			} 
+			case 8:
+			{
+				eax=exit_counts[8];
+				break;
+			} 
+			case 9:
+			{
+				eax=exit_counts[9];
+				break;
+			}
+			case 10:
+			{
+				eax=exit_counts[10];
+				break;
+			} 
+			case 12:
+			{
+				eax=exit_counts[12];
+				break;
+			} 
+			case 13:
+			{
+				eax=exit_counts[13];
+				break;
+			} 
+			case 14:
+			{
+				eax=exit_counts[14];
+				break;
+			} 
+			case 15:
+			{
+				eax=exit_counts[15];
+				break;
+			}
+			case 18:
+			{
+				eax=exit_counts[18];
+				break;
+			} 
+			case 19:
+			{
+				eax=exit_counts[19];
+				break;
+			} 
+			case 20:
+			{
+				eax=exit_counts[20];
+				break;
+			} 
+			case 21:
+			{
+				eax=exit_counts[21];
+				break;
+			} 
+			case 22:
+			{
+				eax=exit_counts[22];
+				break;
+			} 
+			case 23:
+			{
+				eax=exit_counts[23];
+				break;
+			} 
+			case 24:
+			{
+				eax=exit_counts[24];
+				break;
+			} 
+			case 25:
+			{
+				eax=exit_counts[25];
+				break;
+			} 
+			case 26:
+			{
+				eax=exit_counts[26];
+				break;
+			} 
+			case 27:
+			{
+				eax=exit_counts[27];
+				break;
+			} 
+			case 28:
+			{
+				eax=exit_counts[28];
+				break;
+			} 
+			case 29:
+			{
+				eax=exit_counts[29];
+				break;
+			} 
+			case 31:
+			{
+				eax=exit_counts[31];
+				break;
+			} 
+			case 32:
+			{
+				eax=exit_counts[32];
+				break;
+			} 
+			case 36:
+			{
+				eax=exit_counts[36];
+				break;
+			}  
+			case 37:
+			{
+				eax=exit_counts[37];
+				break;
+			} 
+			case 39:
+			{
+				eax=exit_counts[39];
+				break;
+			} 
+			case 40:
+			{
+				eax=exit_counts[40];
+				break;
+			}
+			case 41:
+			{
+				eax=exit_counts[41];
+				break;
+			} 
+			case 43:
+			{
+				eax=exit_counts[43];
+				break;
+			} 
+			case 44:
+			{
+				eax=exit_counts[44];
+				break;
+			}
+			case 46:
+			{
+				eax=exit_counts[46];
+				break;
+			} 
+			case 47:
+			{
+				eax=exit_counts[47];
+				break;
+			} 
+			case 48:
+			{
+				eax=exit_counts[48];
+				break;
+			} 
+			case 49:
+			{
+				eax=exit_counts[49];
+				break;
+			}   
+			case 50:
+			{
+				eax=exit_counts[50];
+				break;
+			} 
+			case 52:
+			{
+				eax=exit_counts[52];
+				break;
+			}
+			case 53:
+			{
+				eax=exit_counts[53];
+				break;
+			} 
+			case 54:
+			{
+				eax=exit_counts[54];
+				break;
+			} 
+			case 55:
+			{
+				eax=exit_counts[55];
+				break;
+			}  
+			case 57:
+			{
+				eax=exit_counts[57];
+				break;
+			}
+			case 58:
+			{
+				eax=exit_counts[58];
+				break;
+			} 
+			case 59:
+			{
+				eax=exit_counts[59];
+				break;
+			}   
+			case 60:
+			{
+				eax=exit_counts[60];
+				break;
+			}  
+			case 61:
+			{
+				eax=exit_counts[61];
+				break;
+			}
+			case 62:
+			{
+				eax=exit_counts[62];
+				break;
+			}  
+			case 63:
+			{
+				eax=exit_counts[63];
+				break;
+			}  
+			case 64:
+			{
+				eax=exit_counts[64];
+				break;
+			}
+			case 3:
+			case 4:
+			case 6:
+			case 11:
+			case 16:
+			case 17:
+			case 30:
+			case 33:
+			case 34:
+			case 45:
+			case 51:
+			case 56:
+			{
+				eax=0x00000000;
+				ebx=0x00000000;
+				ecx=0x00000000;
+				edx=0x00000000;
+				break;
+			}     
+			default:
+			{
+				eax=0x00000000;
+				ebx=0x00000000;
+				ecx=0x00000000;
+				edx=0xFFFFFFFF;
+			}
+
+		}	
+	}
+	else
+	{
 	kvm_cpuid(vcpu, &eax, &ebx, &ecx, &edx, true);
+	}
 	kvm_rax_write(vcpu, eax);
 	kvm_rbx_write(vcpu, ebx);
 	kvm_rcx_write(vcpu, ecx);
