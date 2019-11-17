@@ -64,8 +64,8 @@
 MODULE_AUTHOR("Qumranet");
 MODULE_LICENSE("GPL");
 
-extern u64 nr_exits;
-extern u64 exit_counts[64];
+extern u32 nr_exits;
+extern u32 exit_counts[80];
 
 u32 exit_name;
 
