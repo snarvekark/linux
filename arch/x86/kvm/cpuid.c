@@ -14,6 +14,7 @@
 #include <linux/vmalloc.h>
 #include <linux/uaccess.h>
 #include <linux/sched/stat.h>
+#include <linux/time.h>
 
 #include <asm/processor.h>
 #include <asm/user.h>
@@ -24,10 +25,28 @@
 #include "trace.h"
 #include "pmu.h"
 
-u32 nr_exits=0;
+atomic_t nr_exits=ATOMIC_INIT(0);
 EXPORT_SYMBOL(nr_exits);
-u32 exit_counts[80] = {};
+atomic_t exit_counts[80] = {};
 EXPORT_SYMBOL(exit_counts);
+
+
+uint64_t start_time=0;
+uint64_t end_time=0;
+uint64_t time_spent=0; 
+
+EXPORT_SYMBOL(start_time);
+EXPORT_SYMBOL(end_time);
+EXPORT_SYMBOL(time_spent);
+
+atomic64_t time_elapsed_sc=ATOMIC_INIT(0);
+
+uint64_t ind_exit=0;
+EXPORT_SYMBOL(time_elapsed_sc);
+
+uint64_t time_store=0;
+atomic64_t exit_time[80] = {};
+EXPORT_SYMBOL(exit_time);
 
 
 static u32 xstate_required_size(u64 xstate_bv, bool compacted)
@@ -1054,261 +1073,67 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 	ecx = kvm_rcx_read(vcpu);
 	if(eax==0x4fffffff)
 	{
-		eax=(u32)nr_exits;
-		printk((u32)nr_exits);
+		eax=atomic_read(&nr_exits);
+		printk("Total Exit Count : %u\n", nr_exits);
 	}
 	else if(eax==0x4ffffffd)
 	{
 		switch(ecx)
 		{
 			case 0:
-			{
-				eax=exit_counts[0];
-				break;
-			}
 			case 1:
-			{
-				eax=exit_counts[1];
-				break;
-			}
 			case 2:
-			{
-				eax=exit_counts[2];
-				break;
-			}
 			case 5:
-			{
-				eax=exit_counts[5];
-				break;
-			}
 			case 7:
-			{
-				eax=exit_counts[7];
-				break;
-			} 
-			case 8:
-			{
-				eax=exit_counts[8];
-				break;
-			} 
+			case 8: 
 			case 9:
-			{
-				eax=exit_counts[9];
-				break;
-			}
 			case 10:
-			{
-				eax=exit_counts[10];
-				break;
-			} 
-			case 12:
-			{
-				eax=exit_counts[12];
-				break;
-			} 
-			case 13:
-			{
-				eax=exit_counts[13];
-				break;
-			} 
-			case 14:
-			{
-				eax=exit_counts[14];
-				break;
-			} 
+			case 12: 
+			case 13: 
+			case 14: 
 			case 15:
-			{
-				eax=exit_counts[15];
-				break;
-			}
 			case 18:
-			{
-				eax=exit_counts[18];
-				break;
-			} 
 			case 19:
-			{
-				eax=exit_counts[19];
-				break;
-			} 
-			case 20:
-			{
-				eax=exit_counts[20];
-				break;
-			} 
-			case 21:
-			{
-				eax=exit_counts[21];
-				break;
-			} 
-			case 22:
-			{
-				eax=exit_counts[22];
-				break;
-			} 
+			case 20: 
+			case 21: 
+			case 22: 
 			case 23:
-			{
-				eax=exit_counts[23];
-				break;
-			} 
-			case 24:
-			{
-				eax=exit_counts[24];
-				break;
-			} 
+			case 24: 
 			case 25:
-			{
-				eax=exit_counts[25];
-				break;
-			} 
-			case 26:
-			{
-				eax=exit_counts[26];
-				break;
-			} 
-			case 27:
-			{
-				eax=exit_counts[27];
-				break;
-			} 
-			case 28:
-			{
-				eax=exit_counts[28];
-				break;
-			} 
-			case 29:
-			{
-				eax=exit_counts[29];
-				break;
-			} 
+			case 26: 
+			case 27: 
+			case 28: 
+			case 29: 
 			case 31:
-			{
-				eax=exit_counts[31];
-				break;
-			} 
 			case 32:
-			{
-				eax=exit_counts[32];
-				break;
-			} 
-			case 36:
-			{
-				eax=exit_counts[36];
-				break;
-			}  
-			case 37:
-			{
-				eax=exit_counts[37];
-				break;
-			} 
-			case 39:
-			{
-				eax=exit_counts[39];
-				break;
-			} 
+			case 36: 
+			case 37: 
+			case 39: 
 			case 40:
-			{
-				eax=exit_counts[40];
-				break;
-			}
 			case 41:
-			{
-				eax=exit_counts[41];
-				break;
-			} 
-			case 43:
-			{
-				eax=exit_counts[43];
-				break;
-			} 
+			case 43: 
 			case 44:
-			{
-				eax=exit_counts[44];
-				break;
-			}
-			case 46:
-			{
-				eax=exit_counts[46];
-				break;
-			} 
-			case 47:
-			{
-				eax=exit_counts[47];
-				break;
-			} 
-			case 48:
-			{
-				eax=exit_counts[48];
-				break;
-			} 
-			case 49:
-			{
-				eax=exit_counts[49];
-				break;
-			}   
-			case 50:
-			{
-				eax=exit_counts[50];
-				break;
-			} 
+			case 46: 
+			case 47: 
+			case 48: 
+			case 49:   
+			case 50: 
 			case 52:
-			{
-				eax=exit_counts[52];
-				break;
-			}
-			case 53:
-			{
-				eax=exit_counts[53];
-				break;
-			} 
-			case 54:
-			{
-				eax=exit_counts[54];
-				break;
-			} 
-			case 55:
-			{
-				eax=exit_counts[55];
-				break;
-			}  
+			case 53: 
+			case 54: 
+			case 55: 
 			case 57:
-			{
-				eax=exit_counts[57];
-				break;
-			}
-			case 58:
-			{
-				eax=exit_counts[58];
-				break;
-			} 
-			case 59:
-			{
-				eax=exit_counts[59];
-				break;
-			}   
-			case 60:
-			{
-				eax=exit_counts[60];
-				break;
-			}  
+			case 58: 
+			case 59:   
+			case 60: 
 			case 61:
-			{
-				eax=exit_counts[61];
-				break;
-			}
-			case 62:
-			{
-				eax=exit_counts[62];
-				break;
-			}  
-			case 63:
-			{
-				eax=exit_counts[63];
-				break;
-			}  
+			case 62:  
+			case 63:  
 			case 64:
 			{
-				eax=exit_counts[64];
+				eax=atomic_read(&exit_counts[ecx]);
+				printk("Total Exits for exit number : %u", ecx);
+				printk(" is : %u\n", exit_counts[ecx]);
 				break;
 			}
 			case 3:
@@ -1328,6 +1153,7 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 				ebx=0x00000000;
 				ecx=0x00000000;
 				edx=0x00000000;
+				printk("Exits not handled by KVM");
 				break;
 			}     
 			default:
@@ -1336,6 +1162,109 @@ int kvm_emulate_cpuid(struct kvm_vcpu *vcpu)
 				ebx=0x00000000;
 				ecx=0x00000000;
 				edx=0xFFFFFFFF;
+				printk("All other exits");				
+			}
+
+		}	
+	}
+	else if(eax==0x4ffffffe)
+	{
+		time_store=atomic64_read(&time_elapsed_sc);
+		ebx = (u32)((time_store>>32) & 0xffffffff);
+		ecx = (u32)(time_store & 0xffffffff);
+		printk("Higher 32-bits of total time spent : %u\n", ebx);
+		printk("Lower 32-bits of total time spent : %u\n", ecx);
+		
+	}
+	else if(eax==0x4ffffffc)
+	{
+		switch(ecx)
+		{
+			case 0:
+			case 1:
+			case 2:
+			case 5:
+			case 7:
+			case 8: 
+			case 9:
+			case 10:
+			case 12: 
+			case 13: 
+			case 14: 
+			case 15:
+			case 18:
+			case 19:
+			case 20: 
+			case 21: 
+			case 22: 
+			case 23:
+			case 24: 
+			case 25:
+			case 26: 
+			case 27: 
+			case 28: 
+			case 29: 
+			case 31:
+			case 32:
+			case 36: 
+			case 37: 
+			case 39: 
+			case 40:
+			case 41:
+			case 43: 
+			case 44:
+			case 46: 
+			case 47: 
+			case 48: 
+			case 49:   
+			case 50: 
+			case 52:
+			case 53: 
+			case 54: 
+			case 55: 
+			case 57:
+			case 58: 
+			case 59:   
+			case 60: 
+			case 61:
+			case 62:  
+			case 63:  
+			case 64:
+			{
+				ind_exit=atomic64_read(&exit_time[ecx]);
+				ebx = (u32)((ind_exit>>32) & 0xffffffff);
+				ecx = (u32)(ind_exit & 0xffffffff);
+				printk("Higher 32-bits of total time spent in this exit is : %u\n", ebx);
+		printk("Lower 32-bits of total time spent in this exit is : %u\n", ecx);
+				break;
+			}
+			case 3:
+			case 4:
+			case 6:
+			case 11:
+			case 16:
+			case 17:
+			case 30:
+			case 33:
+			case 34:
+			case 45:
+			case 51:
+			case 56:
+			{
+				eax=0x00000000;
+				ebx=0x00000000;
+				ecx=0x00000000;
+				edx=0x00000000;
+				printk("Exits not handled by KVM");
+				break;
+			}     
+			default:
+			{
+				eax=0x00000000;
+				ebx=0x00000000;
+				ecx=0x00000000;
+				edx=0xFFFFFFFF;
+				printk("All other exits");
 			}
 
 		}	
